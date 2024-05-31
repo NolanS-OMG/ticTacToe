@@ -1,3 +1,11 @@
+# Tic Tac Toe Game
+
+This is a simple Tic Tac Toe game implemented in Vanilla HTML, CSS, and JavaScript.
+
+## Instructions
+
+### Cloning the Repository
+
 To clone this repository, follow these steps:
 
 1. Open your terminal or command prompt.

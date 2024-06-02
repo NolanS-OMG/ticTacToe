@@ -26,14 +26,20 @@ for(let i=0; i<9; i++) {
   ticTacToe.appendChild(square);
 }
 
+// Gets the change turn button and adds functionality to it
 const changeTurnButton = document.getElementById("changeTurnButton");
 changeTurnButton.addEventListener( 'click', changeTurn );
 
+// Changes the turn: "X" <---> "CIRCLE"
 function changeTurn() {
+  // The new turn is the opposite
   turn = !turn;
+  // The computer turn is opposite from the actual turn
   computerTurn = !turn;
+  // The new start turn is the actual one
   startTurn = turn;
 
+  // Prints message depending on the turn
   if(turn) {
     messageDiv.innerText = "X TURN";
     messageDiv.className = "x-color";
@@ -43,11 +49,15 @@ function changeTurn() {
   }
 }
 
+// Gets the computer start cutton and adds functionality to it
 const computerStartsButton = document.getElementById("computerStartsButton");
 computerStartsButton.addEventListener( 'click', computerStarts);
 
+// Makes the start move of the computer
 function computerStarts() {
+  // The computer turn is the initial one
   computerTurn = startTurn;
+  // The computer moves
   computersMove();
 }
 
@@ -57,14 +67,19 @@ modeButton.addEventListener( 'click', changeMode );
 
 // Changes game mode: "vsPlayer" <---> "vsComputer"
 function changeMode() {
-  if( vsPlayer ) {
-    modeButton.firstChild.innerText = "vs Computer";
-    computerStartsButton.style.display = "inline-block";
-  } else {
-    modeButton.firstChild.innerText = "vs Player";
-    computerStartsButton.style.display = "none";
-  }
+  // Changes the mode to the opposite
   vsPlayer = !vsPlayer;
+  if( vsPlayer ) {
+    // if its "vsPlayer" mode, it prints it
+    modeButton.firstChild.innerText = "vs Player";
+    // Hiddes the computer start button
+    computerStartsButton.style.display = "none";
+  } else {
+    // if its "vsComputer" mode, it prints it
+    modeButton.firstChild.innerText = "vs Computer";
+    // Shows the computer start button
+    computerStartsButton.style.display = "inline-block";
+  }
 }
 
 // Get the reset button and add click functionality to it
@@ -124,6 +139,7 @@ messageDiv.className = "x-color";
 // This function, triggered by clicking a square, contains all the necessary game logic
 function squareClick(event) {
 
+  // If the game is finished doesnt do anything
   if( isGameFinished ) {
     return;
   }
@@ -172,20 +188,28 @@ function squareClick(event) {
 
 // This function makes the computer choose a square and click it
 function computersMove() {
+  // Gets the available squares
+  // (when a square is pressed, the class pointer is eliminated)
   const availableSquares = document.getElementsByClassName("pointer");
+
+  // Clicks on any random available squares
   const clickEvent = new Event('click');
   availableSquares[ Math.floor(Math.random()*availableSquares.length) ].dispatchEvent(clickEvent);
 }
 
 // Draw X
 function drawX(element) {
+  // Removes the pointer
   element.classList.remove('pointer');
+  // Adds the class for X and the svg to show the shape
   element.classList.add('has-x');
   element.firstChild.innerHTML = XSvgString;
 
+  // Shows the new turn message
   messageDiv.innerText = "CIRCLE TURN";
   messageDiv.className = "c-color";
 
+  // Sets its place on the simulation
   const row = Number(element.id.slice(0,1));
   const column = Number(element.id.slice(1,2));
   simulation[row][column] = 1;
@@ -193,13 +217,17 @@ function drawX(element) {
 
 // Draw circle
 function drawC(element) {
+  // Removes the pointer
   element.classList.remove('pointer');
+  // Adds the class for circle and the avg to show the shape
   element.classList.add('has-c');
   element.firstChild.innerHTML = circleSvgString;
 
+  // Shows the nest turn message
   messageDiv.innerText = "X TURN";
   messageDiv.className = "x-color";
 
+  // Sets its place on the simulation
   const row = Number(element.id.slice(0,1));
   const column = Number(element.id.slice(1,2));
   simulation[row][column] = -1;
@@ -215,6 +243,7 @@ function endCondition(place) {
   if( isLine(row, column) ) {
     isGameFinished = true;
 
+    // "vs Player mode"
     if( vsPlayer ) {
       if( turn ) {
         messageDiv.innerText = "X WINS !!!";
@@ -226,11 +255,14 @@ function endCondition(place) {
       return;
     }
 
+    // "vs Computer mode"
     if( turn === computerTurn ) {
+      // When its the computer turn
       messageDiv.innerText = "YOU LOST :(";
       endOptions("looser");
       endAnimation(row,column, "looser");
     } else {
+      // When its the computer turn
       messageDiv.innerText = "YOU WON :D";
       endOptions("win");
       endAnimation(row,column, "win");
@@ -285,6 +317,7 @@ function isDiagonal(row, column, num) {
     return false;
   }
 
+  // If any of the diagonals gives true, it is a diagonal
   return isDirectDiagonal(num) || isCounterDiagonal(num);
 }
 
@@ -317,7 +350,9 @@ function isCounterDiagonal(num) {
 
 // Set the options for the game when it ends
 function endOptions(word) {
+  // winner / looser / draw color
   messageDiv.className = word + "-color";
+  // Adds all square end classes
   const allSquares = Array.from( ticTacToe.children );
   for(let i=0; i<allSquares.length; i++) {
     allSquares[i].classList.remove('normal-border');
@@ -328,10 +363,12 @@ function endOptions(word) {
 
 // Triggers when the games ends and its not a draw
 function endAnimation(row, column, word) {
+  // The number we search on the simulation
   let searchNum = -1;
   if(turn) {
     searchNum = 1;
   }
+  // Gets the winning elements and adds them the classes for animations
   const winningElements = getWinningPositions(row,column, searchNum);
   for( let i=0; i<winningElements.length; i++ ) {
     winningElements[i].classList.add(word+"-color");
@@ -341,21 +378,26 @@ function endAnimation(row, column, word) {
 
 // Gets the positions of the winning squares that make the line
 function getWinningPositions(row,column, searchNum) {
-  const retObj = {};
+  // If it is a double, return all the X or circle positions
+  // (A double, is when you win with two lines at the same time, it si only posible with 5 X or circles, so it has to be all of them)
   if( isDouble(row, column, searchNum) ) {
     let searchClass = turn ? "has-x" : "has-c";
     return document.getElementsByClassName(searchClass);
   }
 
+  // Object to add the ids of the winning positions
+  const idsObject = {};
   if( isRow(row, searchNum) ) {
-    retObj.one = `${row}0`;
-    retObj.two = `${row}1`;
-    retObj.three = `${row}2`;
+    // Row Ids
+    idsObject.one = `${row}0`;
+    idsObject.two = `${row}1`;
+    idsObject.three = `${row}2`;
   }
   if( isColumn(column, searchNum) ) {
-    retObj.one = `0${column}`;
-    retObj.two = `1${column}`;
-    retObj.three = `2${column}`;
+    // Colums Ids
+    idsObject.one = `0${column}`;
+    idsObject.two = `1${column}`;
+    idsObject.three = `2${column}`;
   }
   if( isDiagonal(row, column, searchNum) ) {
     let diagonal = 0;
@@ -364,26 +406,32 @@ function getWinningPositions(row,column, searchNum) {
         diagonal += 1;
       }
     }
+    // Diagonal Ids
     if( diagonal === 3 ) {
-      retObj.one = `00`;
-      retObj.two = `11`;
-      retObj.three = `22`;
+      idsObject.one = `00`;
+      idsObject.two = `11`;
+      idsObject.three = `22`;
     } else {
-      retObj.one = `02`;
-      retObj.two = `11`;
-      retObj.three = `20`;
+      idsObject.one = `02`;
+      idsObject.two = `11`;
+      idsObject.three = `20`;
     }
   }
 
-  const keys = Object.keys( retObj );
+  // Gets a list of the keys
+  const keys = Object.keys( idsObject );
   const winningElements = [];
-  for( let i=0; i<3; i++ ) {
-    winningElements.push( document.getElementById(retObj[ keys[i] ]) );
+  for( let i=0; i<keys.length; i++ ) {
+    // Saves the 3 winning squares
+    winningElements.push( document.getElementById(idsObject[ keys[i] ]) );
   }
 
   return winningElements;
 }
 
+// Returns if it is a Double
 function isDouble(row,column, num) {
+  // If it is a row and a column or both diagonals is a double
+  // (Is impossible to make a double with diagonal and row, or diagonal and column)
   return (isRow(row,num) && isColumn(column,num)) || (isDirectDiagonal(num) && isCounterDiagonal(num));
 }

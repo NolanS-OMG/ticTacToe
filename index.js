@@ -7,6 +7,8 @@ let simulation = [ [0,0,0], [0,0,0], [0,0,0] ];
 let turn = true;
 let turnsCount = 0;
 let isGameFinished = false;
+let vsPlayer = true;
+let computerTurn = !turn;
 
 // Creates and configures the 9 squares of the game
 for(let i=0; i<9; i++) {
@@ -21,6 +23,46 @@ for(let i=0; i<9; i++) {
   innerDiv.className = "svg";
   square.appendChild( innerDiv );
   ticTacToe.appendChild(square);
+}
+
+const changeTurnButton = document.getElementById("changeTurnButton");
+changeTurnButton.addEventListener( 'click', changeTurn );
+
+function changeTurn() {
+  turn = !turn;
+  computerTurn = !turn;
+
+  if(turn) {
+    messageDiv.innerText = "X TURN";
+    messageDiv.className = "x-color";
+  } else {
+    messageDiv.innerText = "C TURN";
+    messageDiv.className = "c-color";
+  }
+}
+
+const computerStartsButton = document.getElementById("computerStartsButton");
+computerStartsButton.addEventListener( 'click', computerStarts);
+
+function computerStarts() {
+  computerTurn = turn;
+  computersMove();
+}
+
+// Get the modeButton and adds click functionality to it
+const modeButton = document.getElementById("modeButton");
+modeButton.addEventListener( 'click', changeMode );
+
+// Changes game mode: "vsPlayer" <---> "vsComputer"
+function changeMode() {
+  if( vsPlayer ) {
+    modeButton.firstChild.innerText = "vs Computer";
+    computerStartsButton.style.display = "inline-block";
+  } else {
+    modeButton.firstChild.innerText = "vs Player";
+    computerStartsButton.style.display = "none";
+  }
+  vsPlayer = !vsPlayer;
 }
 
 // Get the reset button and add click functionality to it
@@ -44,8 +86,18 @@ function reset() {
   }
 
   // Restart message
-  messageDiv.innerText = "X TURN";
-  messageDiv.className = "x-color";
+  if(turn) {
+    messageDiv.innerText = "X TURN";
+    messageDiv.className = "x-color";
+  } else {
+    messageDiv.innerText = "C TURN";
+    messageDiv.className = "c-color";
+  }
+
+  // it is possible to change game mode, game turn or let the computer Starts
+  modeButton.removeAttribute("disabled");
+  changeTurnButton.removeAttribute("disabled");
+  computerStartsButton.removeAttribute("disabled");
 }
 
 // SVG HTML code of the circle
@@ -86,6 +138,11 @@ function squareClick(event) {
     return;
   }
 
+  // Because the game starts, it is impossible to change the game mode, game turn or let the computer starts
+  modeButton.setAttribute( "disabled", "disabled" );
+  changeTurnButton.setAttribute( "disabled", "disabled" );
+  computerStartsButton.setAttribute( "disabled", "disabled" );
+
   // Increase turn count
   turnsCount += 1;
 
@@ -101,6 +158,21 @@ function squareClick(event) {
 
   // Switch turn
   turn = !turn;
+
+  // if it is not in "vsPlayer" mode (it is on "vsComputer")
+  // and it is the computer turn
+  console.log( turn );
+  if( !vsPlayer && turn === computerTurn ) {
+    // Computer moves
+    computersMove();
+  }
+}
+
+// This function makes the computer choose a square and click it
+function computersMove() {
+  const availableSquares = document.getElementsByClassName("pointer");
+  const clickEvent = new Event('click');
+  availableSquares[ Math.floor(Math.random()*availableSquares.length) ].dispatchEvent(clickEvent);
 }
 
 // Draw X
@@ -139,14 +211,29 @@ function endCondition(place) {
   
   // If there's a line, we have a winner
   if( isLine(row, column) ) {
-    if( turn ) {
-      messageDiv.innerText = "X WINS !!!";
-    } else {
-      messageDiv.innerText = "CIRCLE WINS !!!";
-    }
-    endOptions("win");
-    winAnimation(row,column);
     isGameFinished = true;
+
+    if( vsPlayer ) {
+      if( turn ) {
+        messageDiv.innerText = "X WINS !!!";
+      } else {
+        messageDiv.innerText = "CIRCLE WINS !!!";
+      }
+      endOptions("win");
+      winAnimation(row,column);
+      return;
+    }
+
+    if( turn === computerTurn ) {
+      messageDiv.innerText = "YOU LOST :(";
+      endOptions("looser");
+      looserAnimation(row,column);
+    } else {
+      messageDiv.innerText = "YOU WON :D";
+      endOptions("win");
+      winAnimation(row,column);
+    }
+
     return;
   }
 
@@ -241,6 +328,27 @@ function winAnimation(row, column) {
   sq01.classList.add('win-color');
   sq02.classList.add('win-color');
   sq03.classList.add('win-color');
+
+  sq01.classList.add('animate');
+  sq02.classList.add('animate');
+  sq03.classList.add('animate');
+}
+
+function looserAnimation(row, column) {
+  let searchNum = -1;
+  if(turn) {
+    searchNum = 1;
+  }
+  const obj = getWinningPositions(row,column, searchNum);
+
+  // The three squares that make the line
+  const sq01 = document.getElementById(obj.one);
+  const sq02 = document.getElementById(obj.two);
+  const sq03 = document.getElementById(obj.three);
+
+  sq01.classList.add('looser-color');
+  sq02.classList.add('looser-color');
+  sq03.classList.add('looser-color');
 
   sq01.classList.add('animate');
   sq02.classList.add('animate');

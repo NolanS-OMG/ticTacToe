@@ -5,6 +5,7 @@ ticTacToe.classList.add('normal-border');
 // Variables necessary to manage the game
 let simulation = [ [0,0,0], [0,0,0], [0,0,0] ];
 let turn = true;
+let startTurn = turn;
 let turnsCount = 0;
 let isGameFinished = false;
 let vsPlayer = true;
@@ -31,12 +32,13 @@ changeTurnButton.addEventListener( 'click', changeTurn );
 function changeTurn() {
   turn = !turn;
   computerTurn = !turn;
+  startTurn = turn;
 
   if(turn) {
     messageDiv.innerText = "X TURN";
     messageDiv.className = "x-color";
   } else {
-    messageDiv.innerText = "C TURN";
+    messageDiv.innerText = "CIRCLE TURN";
     messageDiv.className = "c-color";
   }
 }
@@ -67,13 +69,13 @@ function changeMode() {
 
 // Get the reset button and add click functionality to it
 const resetButton = document.getElementById('resetButton');
-resetButton.addEventListener( 'click', reset );
+resetButton.addEventListener( 'click', resetGame );
 
 // Reset function
-function reset() {
+function resetGame() {
   // Reset variables
   simulation = [ [0,0,0], [0,0,0], [0,0,0] ];
-  turn = true;
+  turn = startTurn;
   turnsCount = 0;
   isGameFinished = false;
 
@@ -90,7 +92,7 @@ function reset() {
     messageDiv.innerText = "X TURN";
     messageDiv.className = "x-color";
   } else {
-    messageDiv.innerText = "C TURN";
+    messageDiv.innerText = "CIRCLE TURN";
     messageDiv.className = "c-color";
   }
 

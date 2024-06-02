@@ -16,6 +16,7 @@
   --win-color: #00ff6a;
   --draw-color: #fcff50;
   --looser-color: red;
+  --gold-color: #efb810;
 }
 
 body {
@@ -55,6 +56,9 @@ button {
 }
 .looser-color {
   color: var(--looser-color);
+}
+.golden-color {
+  color: var(--gold-color) !important;
 }
 
 .container {
@@ -98,6 +102,9 @@ button {
 }
 .looser-border {
   border: solid 1px var(--looser-color);
+}
+.golden-border {
+  border: solid 1px var(--gold-color) !important;
 }
 
 .pointer:hover {
@@ -156,7 +163,7 @@ button {
   box-shadow: 3px 3px;
 }
 
-@keyframes changeColor {
+@keyframes normalAnimation {
   0% {
     background-color: var(--background-square-color);
     transform: translate(0px, 0px);
@@ -184,8 +191,74 @@ button {
   }
 }
 
+@keyframes goldenAnimation {
+  0% {
+    background-color: var(--background-square-color);
+    transform: translate(0px, 0px);
+    box-shadow: 0px 0px;
+  }
+  25% {
+    background-color: var(--background-square-hover-color);
+    transform: translate(-4px, -4px);
+    box-shadow: 4px 4px;
+  }
+  50% {
+    background-color: var(--background-square-color);
+    transform: translate(-4px, -4px);
+    box-shadow: 4px 4px;
+    color: var(--gold-color);
+  }
+  75% {
+    background-color: var(--background-square-hover-color);
+    transform: translate(-4px, -4px);
+    box-shadow: 4px 4px;
+  }
+  100% {
+    background-color: var(--background-square-color);
+    transform: translate(-4px, -4px);
+    box-shadow: 4px 4px;
+    color: var(--gold-color);
+  }
+}
+
+@keyframes changeAnimation {
+  0% {
+    transform: skew(0deg, 0deg) scale(1.0);
+  }
+  50% {
+    transform: skew(45deg, 45deg) scale(0.5);
+  }
+  100% {
+    transform: skew(0deg, 0deg) scale(1.11);
+  }
+}
+
+@keyframes goldenShadow {
+  0% {
+    box-shadow: 0px 0px 0px transparent;
+  }
+  30% {
+    box-shadow: 0px 0px 0px transparent;
+  }
+  100% {
+    box-shadow: 0px 0px 10px var(--gold-color);
+  }
+}
+
 .animate {
-  animation: changeColor 0.8s linear forwards;
+  animation: normalAnimation 0.8s linear forwards;
+}
+
+.golden {
+  animation: goldenAnimation 0.8s linear forwards;
+}
+
+.golden > div {
+  animation: changeAnimation 0.8s linear forwards;
+}
+
+.golden > div > svg {
+  animation: goldenShadow 0.8s linear forwards;
 }
 
 .position-relative {

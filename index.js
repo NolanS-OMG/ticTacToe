@@ -130,6 +130,18 @@ const XSvgString =  '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
                 '<path id="Vector" d="M18 18L12 12M12 12L6 6M12 12L18 6M12 12L6 18" stroke="#3a86ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'+
                 '</g>' +
                 '</svg>';
+// GOLD CIRCLE
+const circleSvgStringGold = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
+                '<g id="Shape / Circle">' +
+                '<circle cx="12" cy="12" r="9" stroke="#efb810" stroke-width="2" fill="none"/>' +
+                '</g>' +
+                '</svg>';
+// GOLD X
+const XSvgStringGold =  '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">' +
+                '<g id="Menu / Close_MD">' +
+                '<path id="Vector" d="M18 18L12 12M12 12L6 6M12 12L18 6M12 12L6 18" stroke="#efb810" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'+
+                '</g>' +
+                '</svg>';
 
 // Container for dynamic message on screen
 const messageDiv = document.getElementById('message');
@@ -369,10 +381,29 @@ function endAnimation(row, column, word) {
     searchNum = 1;
   }
   // Gets the winning elements and adds them the classes for animations
-  const winningElements = getWinningPositions(row,column, searchNum);
+  const {winningElements, animation} = getWinningPositions(row,column, searchNum);
+
+  // When it is a double it has a special golden animation
+  if( animation === "golden" ) {
+    const allSquares = Array.from( ticTacToe.children );
+    setTimeout( () => {
+      messageDiv.className = "golden" + "-color";
+      for(let i=0; i<allSquares.length; i++) {
+        allSquares[i].classList.remove("win" + '-border');
+        allSquares[i].classList.remove("looser" + '-border');
+        allSquares[i].classList.add("golden" + '-border');
+      }
+    }, 400 );
+  }
   for( let i=0; i<winningElements.length; i++ ) {
     winningElements[i].classList.add(word+"-color");
-    winningElements[i].classList.add("animate");
+    winningElements[i].classList.add(animation);
+    // When it is a double we wait 400miliseconds to set the golden color
+    if( animation === "golden" ) {
+      setTimeout( () => {
+        winningElements[i].firstChild.innerHTML = !turn ? XSvgStringGold : circleSvgStringGold;
+      }, 400 );
+    }
   }
 }
 
@@ -382,7 +413,7 @@ function getWinningPositions(row,column, searchNum) {
   // (A double, is when you win with two lines at the same time, it si only posible with 5 X or circles, so it has to be all of them)
   if( isDouble(row, column, searchNum) ) {
     let searchClass = turn ? "has-x" : "has-c";
-    return document.getElementsByClassName(searchClass);
+    return {winningElements: document.getElementsByClassName(searchClass), animation: "golden"};
   }
 
   // Object to add the ids of the winning positions
@@ -426,7 +457,7 @@ function getWinningPositions(row,column, searchNum) {
     winningElements.push( document.getElementById(idsObject[ keys[i] ]) );
   }
 
-  return winningElements;
+  return {winningElements, animation: "animate"};
 }
 
 // Returns if it is a Double

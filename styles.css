@@ -238,7 +238,7 @@ button {
     box-shadow: 0px 0px 0px transparent;
   }
   30% {
-    box-shadow: 0px 0px 0px transparent;
+    box-shadow: 0px 0px 10px transparent;
   }
   100% {
     box-shadow: 0px 0px 10px var(--gold-color);
@@ -254,7 +254,7 @@ button {
 }
 
 .golden > div {
-  animation: changeAnimation 0.8s linear forwards;
+  animation: changeAnimation 0.8s ease forwards;
 }
 
 .golden > div > svg {

@@ -47,7 +47,7 @@ const computerStartsButton = document.getElementById("computerStartsButton");
 computerStartsButton.addEventListener( 'click', computerStarts);
 
 function computerStarts() {
-  computerTurn = turn;
+  computerTurn = startTurn;
   computersMove();
 }
 
@@ -76,6 +76,7 @@ function resetGame() {
   // Reset variables
   simulation = [ [0,0,0], [0,0,0], [0,0,0] ];
   turn = startTurn;
+  computerTurn = !startTurn;
   turnsCount = 0;
   isGameFinished = false;
 

@@ -164,7 +164,6 @@ function squareClick(event) {
 
   // if it is not in "vsPlayer" mode (it is on "vsComputer")
   // and it is the computer turn
-  console.log( turn );
   if( !vsPlayer && turn === computerTurn ) {
     // Computer moves
     computersMove();
@@ -223,18 +222,18 @@ function endCondition(place) {
         messageDiv.innerText = "CIRCLE WINS !!!";
       }
       endOptions("win");
-      winAnimation(row,column);
+      endAnimation(row,column, "win");
       return;
     }
 
     if( turn === computerTurn ) {
       messageDiv.innerText = "YOU LOST :(";
       endOptions("looser");
-      looserAnimation(row,column);
+      endAnimation(row,column, "looser");
     } else {
       messageDiv.innerText = "YOU WON :D";
       endOptions("win");
-      winAnimation(row,column);
+      endAnimation(row,column, "win");
     }
 
     return;
@@ -286,22 +285,34 @@ function isDiagonal(row, column, num) {
     return false;
   }
 
-  // Variables to search the diagonal or the counter diagonal
-  let diagonal = 0
-  let counterDiagonal = 0;
+  return isDirectDiagonal(num) || isCounterDiagonal(num);
+}
+
+function isDirectDiagonal(num) {
+  // Variables to search the direct diagonal
+  let direct = 0
   for( let i=0; i<3; i++ ) {
     // If it's the diagonal, increment diagonal count
     if ( simulation[i][i] === num ) {
-      diagonal += 1;
-    }
-    // If it's the counter diagonal, increment counter diagonal count
-    if( simulation[2-i][i] === num ) {
-      counterDiagonal += 1;
+      direct += 1;
     }
   }
 
-  // If any of the diagonals sum up to 3 squares with the same value, it's a diagonal
-  return diagonal === 3 || counterDiagonal === 3;
+  // If the diagonal sum up to 3 squares with the same value, it's a diagonal
+  return direct === 3;
+}
+function isCounterDiagonal(num) {
+  // Variables to search the counter diagonal
+  let counter = 0;
+  for( let i=0; i<3; i++ ) {
+    // If it's the counter diagonal, increment counter diagonal count
+    if( simulation[2-i][i] === num ) {
+      counter += 1;
+    }
+  }
+
+  // If the diagonal sum up to 3 squares with the same value, it's a diagonal
+  return counter === 3;
 }
 
 // Set the options for the game when it ends
@@ -315,52 +326,27 @@ function endOptions(word) {
   }
 }
 
-// Triggers the animation of winning
-function winAnimation(row, column) {
+// Triggers when the games ends and its not a draw
+function endAnimation(row, column, word) {
   let searchNum = -1;
   if(turn) {
     searchNum = 1;
   }
-  const obj = getWinningPositions(row,column, searchNum);
-
-  // The three squares that make the line
-  const sq01 = document.getElementById(obj.one);
-  const sq02 = document.getElementById(obj.two);
-  const sq03 = document.getElementById(obj.three);
-
-  sq01.classList.add('win-color');
-  sq02.classList.add('win-color');
-  sq03.classList.add('win-color');
-
-  sq01.classList.add('animate');
-  sq02.classList.add('animate');
-  sq03.classList.add('animate');
-}
-
-function looserAnimation(row, column) {
-  let searchNum = -1;
-  if(turn) {
-    searchNum = 1;
+  const winningElements = getWinningPositions(row,column, searchNum);
+  for( let i=0; i<winningElements.length; i++ ) {
+    winningElements[i].classList.add(word+"-color");
+    winningElements[i].classList.add("animate");
   }
-  const obj = getWinningPositions(row,column, searchNum);
-
-  // The three squares that make the line
-  const sq01 = document.getElementById(obj.one);
-  const sq02 = document.getElementById(obj.two);
-  const sq03 = document.getElementById(obj.three);
-
-  sq01.classList.add('looser-color');
-  sq02.classList.add('looser-color');
-  sq03.classList.add('looser-color');
-
-  sq01.classList.add('animate');
-  sq02.classList.add('animate');
-  sq03.classList.add('animate');
 }
 
 // Gets the positions of the winning squares that make the line
 function getWinningPositions(row,column, searchNum) {
   const retObj = {};
+  if( isDouble(row, column, searchNum) ) {
+    let searchClass = turn ? "has-x" : "has-c";
+    return document.getElementsByClassName(searchClass);
+  }
+
   if( isRow(row, searchNum) ) {
     retObj.one = `${row}0`;
     retObj.two = `${row}1`;
@@ -389,5 +375,15 @@ function getWinningPositions(row,column, searchNum) {
     }
   }
 
-  return retObj;
+  const keys = Object.keys( retObj );
+  const winningElements = [];
+  for( let i=0; i<3; i++ ) {
+    winningElements.push( document.getElementById(retObj[ keys[i] ]) );
+  }
+
+  return winningElements;
+}
+
+function isDouble(row,column, num) {
+  return (isRow(row,num) && isColumn(column,num)) || (isDirectDiagonal(num) && isCounterDiagonal(num));
 }
